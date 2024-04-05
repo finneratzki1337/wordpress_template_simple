@@ -1,0 +1,45 @@
+version: "3.7"
+services:
+
+  grc-wordpress:
+    image: wordpress:php8.1-apache
+    #container_name: grc-wordpress
+    #build:
+      #context: .
+      #dockerfile: ./Dockerfile
+    #network_mode: "host"
+    ports:
+      - 5005:80
+    env_file: .env
+    environment:
+      WORDPRESS_DB_HOST: grc-mysql-db:3306
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+    restart: always
+    volumes:
+      - grc-wordpress-data:/var/www/html
+    depends_on:
+      - grc-mysql-db
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  grc-mysql-db:
+    image: mysql:8.3
+    #container_name: grc-mysql-db
+    env_file: .env
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    volumes:
+      - grc-mysql-data:/var/lib/mysql
+
+volumes:
+  grc-mysql-data:
+  grc-wordpress-data:
+
+
